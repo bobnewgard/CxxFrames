@@ -18,6 +18,7 @@
  */
 
 #include <iomanip>
+#include <sstream>
 #include <FramePause.h>
 
 namespace Frames
@@ -53,7 +54,7 @@ namespace Frames
         bytes.push_back((uint8_t)(this->quanta >> 8));
         bytes.push_back((uint8_t)(this->quanta & 0x00FF));
 
-        for (auto i = 0 ; i < PAUSE_PAD_SIZE ; ++i)
+        for (unsigned int i = 0 ; i < PAUSE_PAD_SIZE ; ++i)
         {
             bytes.push_back(0x00);
         }

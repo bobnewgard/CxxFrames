@@ -122,7 +122,6 @@ namespace Frames
 
     string Frame::gist_item(item& arg_item)
     {
-        bool   tmp = false;
         stringstream ss;
 
         ss  << "{valid:" << boolalpha << arg_item.valid

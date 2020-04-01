@@ -1,0 +1,48 @@
+#!/bin/bash
+#%# show config
+
+#
+# Copyright 2020 Robert Newgard
+#
+# This file is part of CxxFrames.
+#
+# CxxFrames is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# CxxFrames is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with CxxFrames.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+START=${1:-cfg/}
+LEN=$(echo cfg | wc -c)
+OFF='\033[0m'
+ORN='\033[0;33m'
+CYN='\033[0;36m'
+
+if [ "${START:0:${LEN}}" != "cfg/" ] ; then
+    echo "[ERR] bad start path: \"${START}\""
+    exit 1
+fi
+
+for OBJ in $(find $START -not -path '*/\.*' | sort) ; do
+    WC=$(echo $OBJ | sed 's|/| |g' | wc -w)
+    IN=$((WC + 1))
+    IN=$((IN * 4))
+    while ((WC > 0)) ; do
+        printf "    "
+        WC=$((WC - 1))
+    done
+    if [ -d "$OBJ" ] ; then
+        printf "${ORN}%s${OFF}\n" $OBJ
+    elif [ -f "$OBJ" ] ; then
+        printf "${CYN}%s${OFF}\n" $OBJ
+        pr -o $IN -t $OBJ
+    fi
+done

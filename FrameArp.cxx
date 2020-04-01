@@ -19,6 +19,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <FrameArp.h>
 
 namespace Frames
@@ -159,7 +160,7 @@ namespace Frames
             this->set_eth_smac(this->spec[ARP_TMAC].bytes);
         }
 
-        for (auto i = 0 ; i < ARP_PAD_SIZE ; ++i)
+        for (unsigned int i = 0 ; i < ARP_PAD_SIZE ; ++i)
         {
             bytes.push_back(0x00);
         }
