@@ -23,6 +23,8 @@
     #include <cstdint>
     #include <string>
     #include <vector>
+    #include <array>
+    #include <pcap.h>
 
     namespace Frames
     {
@@ -39,9 +41,11 @@
         class Frame
         {
             private:
-                item     frame;
-                bool     iter_idle;
-                BVecIter iter_pos;
+                item         frame;
+                bool         iter_idle;
+                BVecIter     iter_pos;
+                char         nic_errbuf[PCAP_ERRBUF_SIZE];
+                pcap_t      *nic_handle;
 
             public:
                 Frame(void);
@@ -50,6 +54,9 @@
                 void give_frame(BVec &&arg_bytes, const uint8_t arg_mask = 0xff);
                 void copy_frame(BVec &arg_bytes, uint8_t &arg_mask);
                 void take_frame(BVec &arg_bytes, uint8_t &arg_mask);
+                bool nic_open(std::string arg_nic_name);
+                void nic_close(void);
+                bool nic_frame_tx(void);
                 bool get_frame_byte(uint8_t &arg_byte);
                 std::string gist_bytes(BVec &arg_bytes);
                 std::string gist_item(item &arg_item);

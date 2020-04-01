@@ -18,9 +18,12 @@
  */
 
 #include <Frame.h>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
 #include <utility>
+#include <cstring>
+#include <string>
 
 namespace Frames
 {
@@ -63,6 +66,50 @@ namespace Frames
         this->frame.mask  = 0xff;
 
         this->frame.bytes.clear();
+    }
+
+    bool Frame::nic_open(std::string arg_nic_name)
+    {
+        nic_errbuf[0] = '\0';
+        nic_handle    = pcap_open_live(arg_nic_name.c_str(), 65536, 0, 100, nic_errbuf);
+
+        if (nic_handle == NULL)
+        {
+            cerr << "nic_open("+arg_nic_name+"): failure opening device " << nic_errbuf << endl << flush;
+            return false;
+        }
+
+        if (strlen(nic_errbuf) != 0)
+        {
+            cerr << "nic_open("+arg_nic_name+"): warning opening device " << nic_errbuf << endl << flush;
+            return false;
+        }
+
+        cerr << "nic_open("+arg_nic_name+"): okay" << endl << flush;
+
+        return true;
+    }
+
+    void Frame::nic_close(void)
+    {
+        pcap_close(nic_handle);
+    }
+
+    bool Frame::nic_frame_tx(void)
+    {
+        int ret;
+
+        ret = pcap_inject(nic_handle, frame.bytes.data(), frame.bytes.size());
+
+        if (ret < 0)
+        {
+            pcap_perror(nic_handle, "nic_frame_tx(): failure");
+            return false;
+        }
+
+        cerr << "nic_frame_tx(): okay" << endl << flush;
+
+        return true;
     }
 
     bool Frame::get_frame_byte(uint8_t &arg_byte)

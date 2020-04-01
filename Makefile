@@ -79,13 +79,14 @@ $(foreach NAM,$(CF_OBJ_NAMS),$(eval $(call lib-obj-targs,$(NAM))))
 # -- Apps ----------------------------------------------------------------------
 APP_CFG       := $(CFG)/App
 APP_EXE_NAMS  := $(shell ls $(APP_CFG))
+APP_EXE_REQS  := $(CF_LIB_TARG)
 
 define compile-for-exe
-    g++ $(CXX_VER) $(DFLAGS) $(CFLAGS) -L . -o $@ $< -l$(CF_LIB_NAME)
+    g++ $(CXX_VER) $(DFLAGS) $(CFLAGS) -L . -o $@ $< -l$(CF_LIB_NAME) -lpcap
 endef
 
 define app-exe-targs
-    $(1) : $(1).cxx $(call get_list,$(APP_CFG)/$(1)/deps) ; $$(call compile-for-exe)
+    $(1) : $(1).cxx $(call get_list,$(APP_CFG)/$(1)/deps) $(APP_EXE_REQS) ; $$(call compile-for-exe)
 endef
 
 $(if $(FALSE),$(info APP_EXE_NAMS: $(APP_EXE_NAMS)))

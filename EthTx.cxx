@@ -27,7 +27,7 @@
 using namespace std;
 using namespace Frames;
 
-const string SP = "\x20";
+const string SP  = "\x20";
 
 int main(int argc, char **argv)
 {
@@ -41,6 +41,8 @@ int main(int argc, char **argv)
         0x01, 0xF9, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x08
     };
+    string    nic_name = "enp5s0";
+    bool      nic_ret;
 
     cerr << "-- Start ------------------------" << endl << flush;
 
@@ -55,6 +57,24 @@ int main(int argc, char **argv)
 
     cerr << "FrameEth:"+tx_frame->gist() << endl << flush;
     cerr << "-- End --" << endl << flush;
+
+    nic_ret = tx_frame->nic_open(nic_name);
+
+    if (nic_ret == false)
+    {
+        cerr << "EthTx: nic_open failure" << endl << flush;
+        exit(1);
+    }
+
+    nic_ret = tx_frame->nic_frame_tx();
+
+    if (nic_ret == false)
+    {
+        cerr << "EthTx: nic_frame_tx failure" << endl << flush;
+        exit(1);
+    }
+
+    tx_frame->nic_close();
 
     exit(0);
 }
