@@ -27,7 +27,7 @@
 using namespace std;
 using namespace Frames;
 
-const string SP  = "\x20";
+const string    SP       = "\x20";
 const string    nic_name = "enx406c8f197c7d";
 const BVec      tx_dmac  = {0x30,0x9c,0x23,0x1c,0x68,0x47}; // enx309c231c6847
 const BVec      tx_smac  = {0x40,0x6c,0x8f,0x19,0x7c,0x7d}; // enx406c8f197c7d
@@ -66,11 +66,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    nic_ret = tx_frame->nic_frame_tx();
+    nic_ret = tx_frame->nic_tx_frame();
 
     if (nic_ret == false)
     {
-        cerr << "EthTx: nic_frame_tx failure" << endl << flush;
+        cerr << "EthTx: nic_tx_frame failure" << endl << flush;
         exit(1);
     }
 

@@ -30,6 +30,7 @@
     {
         typedef std::vector<uint8_t> BVec;
         typedef std::vector<uint8_t>::iterator BVecIter;
+        typedef struct bpf_program pcap_bpf;
 
         struct item
         {
@@ -45,6 +46,7 @@
                 BVecIter     iter_pos;
                 char         nic_errbuf[PCAP_ERRBUF_SIZE];
                 pcap_t      *nic_handle;
+                pcap_bpf     nic_bpf;
 
             public:
                 Frame(void);
@@ -55,7 +57,9 @@
                 void take_frame(BVec &arg_bytes);
                 bool nic_open(std::string arg_nic_name);
                 void nic_close(void);
-                bool nic_frame_tx(void);
+                bool nic_rx_filter(std::string arg_expr);
+                bool nic_rx_frame(void);
+                bool nic_tx_frame(void);
                 bool get_frame_byte(uint8_t &arg_byte);
                 std::string gist_bytes(BVec &arg_bytes);
                 std::string gist_item(item &arg_item);

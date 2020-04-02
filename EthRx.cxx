@@ -25,27 +25,43 @@
 #include <FrameEth.h>
 
 using namespace std;
+using namespace Frames;
 
-const string SP = "\x20";
-
-void usage(string arg_prog)
-{
-    stringstream ss;
-
-    ss  << "usage:"+SP+arg_prog+SP;
-
-    cerr << ss.str() << endl << flush;
-    exit(1);
-}
+const string SP       = "\x20";
+const string nic_name = "enx309c231c6847";
 
 int main(int argc, char **argv)
 {
-    string prog = argv[0];
+    FrameEth *rx_frame = new FrameEth();
+    bool      nic_ret;
 
-    if (argc < 2)
+    nic_ret = rx_frame->nic_open(nic_name);
+
+    if (nic_ret == false)
     {
-        usage(prog);
+        cerr << "EthRx: nic_open() failure" << endl << flush;
+        exit(1);
     }
+
+    nic_ret = rx_frame->nic_rx_filter("not ip6");
+
+    if (nic_ret == false)
+    {
+        cerr << "EthRx: nic_rx_filter() failure" << endl << flush;
+        exit(1);
+    }
+
+    nic_ret = rx_frame->nic_rx_frame();
+
+    if (nic_ret == false)
+    {
+        cerr << "EthRx: nic_rx_frame() failure" << endl << flush;
+        exit(1);
+    }
+
+    rx_frame->nic_close();
+
+    cerr << "FrameEth:"+rx_frame->gist() << endl << flush;
 
     exit(0);
 }
