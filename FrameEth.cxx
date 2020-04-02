@@ -28,11 +28,11 @@ namespace Frames
 
     FrameEth::FrameEth(void) : Frame()
     {
-        spec[ ETH_DMAC        ] = {false, 0xff, BVec()};
-        spec[ ETH_SMAC        ] = {false, 0xff, BVec()};
-        spec[ ETH_TYPE_INSERT ] = {false, 0xff, BVec()};
-        spec[ ETH_TYPE_ENCAP  ] = {false, 0xff, BVec()};
-        spec[ ETH_PAYLOAD     ] = {false, 0xff, BVec()};
+        spec[ ETH_DMAC        ] = {false, BVec()};
+        spec[ ETH_SMAC        ] = {false, BVec()};
+        spec[ ETH_TYPE_INSERT ] = {false, BVec()};
+        spec[ ETH_TYPE_ENCAP  ] = {false, BVec()};
+        spec[ ETH_PAYLOAD     ] = {false, BVec()};
     }
 
     FrameEth::~FrameEth(void) { }

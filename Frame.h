@@ -34,7 +34,6 @@
         struct item
         {
             bool    valid;
-            uint8_t mask;
             BVec    bytes;
         };
 
@@ -51,9 +50,9 @@
                 Frame(void);
                 virtual ~Frame(void);
 
-                void give_frame(BVec &&arg_bytes, const uint8_t arg_mask = 0xff);
-                void copy_frame(BVec &arg_bytes, uint8_t &arg_mask);
-                void take_frame(BVec &arg_bytes, uint8_t &arg_mask);
+                void give_frame(BVec &&arg_bytes);
+                void copy_frame(BVec &arg_bytes);
+                void take_frame(BVec &arg_bytes);
                 bool nic_open(std::string arg_nic_name);
                 void nic_close(void);
                 bool nic_frame_tx(void);
@@ -64,11 +63,3 @@
         };
     }
 #endif
-
-// Usage:
-//     #include <utility>
-//     #include <vector>
-//     #include <Frame.h>
-//     tr_frame->give_frame(move(tr_vec));
-//     tr_frame->copy_frame(tr_vec, tr_mask);
-//     tr_frame->take_frame(tr_vec, tr_mask);

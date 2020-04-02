@@ -28,20 +28,20 @@ using namespace std;
 using namespace Frames;
 
 const string SP  = "\x20";
-
-int main(int argc, char **argv)
-{
-    FrameEth *tx_frame = new FrameEth();
-    BVec      tx_dmac  = {0x1A,0x1B,0x1C,0x1D,0x1E,0x1F};
-    BVec      tx_smac  = {0x54,0xb2,0x03,0x0a,0x21,0xf3};
-    uint16_t  tx_etyp  = 0x1005;
-    BVec      tx_pyld  = {
+const string    nic_name = "enx406c8f197c7d";
+const BVec      tx_dmac  = {0x30,0x9c,0x23,0x1c,0x68,0x47}; // enx309c231c6847
+const BVec      tx_smac  = {0x40,0x6c,0x8f,0x19,0x7c,0x7d}; // enx406c8f197c7d
+const uint16_t  tx_etyp  = 0x1005;
+const BVec      tx_pyld  = {
         0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00,
         0x01, 0xF9, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x08
-    };
-    string    nic_name = "enp5s0";
+  };
+
+int main(int argc, char **argv)
+{
+    FrameEth *tx_frame = new FrameEth();
     bool      nic_ret;
 
     cerr << "-- Start ------------------------" << endl << flush;

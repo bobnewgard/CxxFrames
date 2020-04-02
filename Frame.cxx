@@ -33,37 +33,32 @@ namespace Frames
     {
         this->iter_idle   = true;
         this->frame.valid = false;
-        this->frame.mask  = 0xff;
         this->frame.bytes.clear();
     }
 
     Frame::~Frame(void) { }
 
-    void Frame::give_frame(BVec &&arg_bytes, const uint8_t arg_mask)
+    void Frame::give_frame(BVec &&arg_bytes)
     {
         this->frame.bytes = arg_bytes;
-        this->frame.mask  = arg_mask;
         this->frame.valid = true;
-        arg_bytes = BVec();
+        arg_bytes         = BVec();
     }
 
-    void Frame::copy_frame(BVec &arg_bytes, uint8_t &arg_mask)
+    void Frame::copy_frame(BVec &arg_bytes)
     {
-        arg_mask = this->frame.mask;
-
         arg_bytes.clear();
+
         for (auto it = this->frame.bytes.begin() ; it != this->frame.bytes.end() ; ++it)
         {
             arg_bytes.push_back(*it);
         }
     }
 
-    void Frame::take_frame(BVec &arg_bytes, uint8_t &arg_mask)
+    void Frame::take_frame(BVec &arg_bytes)
     {
-        arg_mask          = this->frame.mask;
         arg_bytes         = move(this->frame.bytes);
         this->frame.valid = false;
-        this->frame.mask  = 0xff;
 
         this->frame.bytes.clear();
     }
@@ -172,7 +167,6 @@ namespace Frames
         stringstream ss;
 
         ss  << "{valid:" << boolalpha << arg_item.valid
-            << ",mask:0x" << setfill('0') << setw(2) << hex << (int)arg_item.mask
             << ","+this->gist_bytes(arg_item.bytes)
             << "}";
 
