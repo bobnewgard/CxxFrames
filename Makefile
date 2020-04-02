@@ -118,7 +118,7 @@ define top_hints_def
     @ $(call hints_def , lib-clean         , Remove library $(CF_LIB_TARG) and $(CF_OBJ_DIR)/ )
     @ $(call hints_def , apps              , Create executables $(APP_EXE_NAMS)               )
     @ $(call hints_def , apps-clean        , Remove executables                               )
-    @ $(call hints_def , clean             , Remove library, executables and $(TMP)/          )
+    @ $(call hints_def , clean             , Remove all generated files and directories       )
 endef
 
 
