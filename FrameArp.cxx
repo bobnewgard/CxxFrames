@@ -28,11 +28,11 @@ namespace Frames
 
     FrameArp::FrameArp(void) : FrameEth()
     {
-        this->spec[ ARP_OP   ] = {false, 0xff, BVec()};
-        this->spec[ ARP_QMAC ] = {false, 0xff, BVec()};
-        this->spec[ ARP_QIP  ] = {false, 0xff, BVec()};
-        this->spec[ ARP_TMAC ] = {false, 0xff, BVec()};
-        this->spec[ ARP_TIP  ] = {false, 0xff, BVec()};
+        this->spec[ ARP_OP   ] = {false, BVec()};
+        this->spec[ ARP_QMAC ] = {false, BVec()};
+        this->spec[ ARP_QIP  ] = {false, BVec()};
+        this->spec[ ARP_TMAC ] = {false, BVec()};
+        this->spec[ ARP_TIP  ] = {false, BVec()};
 
         this->spec_op = ArpOp::OP_NIL;
     }

@@ -28,10 +28,10 @@ namespace Frames
 
     FrameIPv4::FrameIPv4(void) : FrameEth()
     {
-        this->spec[ IPV4_PROTO   ] = {false, 0xff, BVec()};
-        this->spec[ IPV4_SIP     ] = {false, 0xff, BVec()};
-        this->spec[ IPV4_DIP     ] = {false, 0xff, BVec()};
-        this->spec[ IPV4_PAYLOAD ] = {false, 0xff, BVec()};
+        this->spec[ IPV4_PROTO   ] = {false, BVec()};
+        this->spec[ IPV4_SIP     ] = {false, BVec()};
+        this->spec[ IPV4_DIP     ] = {false, BVec()};
+        this->spec[ IPV4_PAYLOAD ] = {false, BVec()};
         this->checksum             = 0;
     }
 

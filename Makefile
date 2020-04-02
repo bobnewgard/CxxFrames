@@ -48,46 +48,46 @@ DFLAGS    := $(NULL)
 
 
 # -- CxxFrames Library ---------------------------------------------------------
-CF_LIB_NAME  := CxxFrames
-CF_OBJ_DIR   := $(TMP)/libobj
-CF_CFG       := $(CFG)/Lib
-CF_OBJ_NAMS  := $(shell ls $(CF_CFG))
-CF_LIB_REQS  := $(foreach OBJ,$(CF_OBJ_NAMS),$(CF_OBJ_DIR)/$(OBJ).o)
-CF_LIB_TARG  := lib$(CF_LIB_NAME).so
+LIB_NAME      := CxxFrames
+LIB_OBJ_DIR   := $(TMP)/libobj
+LIB_CFG       := $(CFG)/Lib
+LIB_OBJ_NAMS  := $(shell ls $(LIB_CFG))
+LIB_REQS      := $(foreach OBJ,$(LIB_OBJ_NAMS),$(LIB_OBJ_DIR)/$(OBJ).o)
+LIB_TARG      := lib$(LIB_NAME).so
 
-$(shell if [ ! -d "$(CF_OBJ_DIR)" ] ; then (set -x ; mkdir -p $(CF_OBJ_DIR)) ; fi)
+$(shell if [ ! -d "$(LIB_OBJ_DIR)" ] ; then (set -x ; mkdir -p $(LIB_OBJ_DIR)) ; fi)
 
 define compile-for-obj
-    mkdir -p $(CF_OBJ_DIR)
+    mkdir -p $(LIB_OBJ_DIR)
     g++ $(CXX_VER) -c $(DFLAGS) $(CFLAGS) -o $@ $<
 endef
 
 define link-for-shared-obj
-    g++ -shared -Wl,-soname,$(CF_LIB_TARG) -o $@ $^
+    g++ -shared -Wl,-soname,$(LIB_TARG) -o $@ $^
 endef
 
 define lib-obj-targs
-    $(CF_OBJ_DIR)/$(1).o : $(1).cxx $(call get_list,$(CF_CFG)/$(1)/deps) ; $$(call compile-for-obj)
+    $(LIB_OBJ_DIR)/$(1).o : $(1).cxx $(call get_list,$(LIB_CFG)/$(1)/ideps) ; $$(call compile-for-obj)
 endef
 
-$(if $(FALSE),$(info CF_OBJ_NAMS: $(CF_OBJ_NAMS)))
-$(if $(FALSE),$(info CF_LIB_REQS: $(CF_LIB_REQS)))
+$(if $(FALSE),$(info LIB_OBJ_NAMS: $(LIB_OBJ_NAMS)))
+$(if $(FALSE),$(info LIB_REQS: $(LIB_REQS)))
 
-$(foreach NAM,$(CF_OBJ_NAMS),$(eval $(call lib-obj-targs,$(NAM))))
+$(foreach NAM,$(LIB_OBJ_NAMS),$(eval $(call lib-obj-targs,$(NAM))))
 
 
 # -- Apps ----------------------------------------------------------------------
 APP_CFG       := $(CFG)/App
 APP_EXE_NAMS  := $(shell ls $(APP_CFG))
-APP_EXE_LIBS  := -l$(CF_LIB_NAME) -lpcap
-APP_EXE_REQS  := $(CF_LIB_TARG)
+APP_EXE_LIBS  := -l$(LIB_NAME) -lpcap
+APP_EXE_REQS  := $(LIB_TARG)
 
 define compile-for-exe
     g++ $(CXX_VER) $(DFLAGS) $(CFLAGS) -L . -o $@ $< $(APP_EXE_LIBS)
 endef
 
 define app-exe-targs
-    $(1) : $(1).cxx $(call get_list,$(APP_CFG)/$(1)/deps) $(APP_EXE_REQS) ; $$(call compile-for-exe)
+    $(1) : $(1).cxx $(call get_list,$(APP_CFG)/$(1)/ideps) $(APP_EXE_REQS) ; $$(call compile-for-exe)
 endef
 
 $(if $(FALSE),$(info APP_EXE_NAMS: $(APP_EXE_NAMS)))
@@ -114,10 +114,12 @@ define top_hints_def
     @ $(hints_h1_def)
     @ $(hints_h2_def)
     @ $(call hints_def , show-cfg          , Show build config - aka 'sc'                     )
-    @ $(call hints_def , lib               , Create library $(CF_LIB_TARG) from source        )
-    @ $(call hints_def , lib-clean         , Remove library $(CF_LIB_TARG) and $(CF_OBJ_DIR)/ )
+    @ $(call hints_def , lib               , Create library $(LIB_TARG) from source           )
+    @ $(call hints_def , lib-clean         , Remove library $(LIB_TARG) and $(LIB_OBJ_DIR)/   )
     @ $(call hints_def , apps              , Create executables $(APP_EXE_NAMS)               )
     @ $(call hints_def , apps-clean        , Remove executables                               )
+    @ $(call hints_def , run-EthTx         , Run EthTx in local environment                   )
+    @ $(call hints_def , run-EthRx         , Run EthRx in local environment                   )
     @ $(call hints_def , clean             , Remove all generated files and directories       )
 endef
 
@@ -130,6 +132,10 @@ define phonys_def
     sc
     lib
     lib-clean
+    apps
+    apps-clean
+    run-EthTx
+    run-EthRx
     clean
 endef
 PHONYS += $(strip $(phonys_def))
@@ -145,11 +151,13 @@ nil             : $(NULL)         ; @true
 hints           : $(NULL)         ; $(top_hints_def)
 show-cfg        : $(NULL)         ; bin/cfg-show
 sc              : show-cfg        ; $(NULL)
-$(CF_LIB_TARG)  : $(CF_LIB_REQS)  ; $(link-for-shared-obj)
-lib             : $(CF_LIB_TARG)  ; $(NULL)
-lib-clean       : $(NULL)         ; rm -rf $(CF_OBJ_DIR)/* $(CF_LIB_TARG)
+$(LIB_TARG)     : $(LIB_REQS)     ; $(link-for-shared-obj)
+lib             : $(LIB_TARG)     ; $(NULL)
+lib-clean       : $(NULL)         ; rm -rf $(LIB_OBJ_DIR)/* $(LIB_TARG)
 apps            : $(APP_EXE_NAMS) ; $(NULL)
 apps-clean      : $(NULL)         ; rm -rf $(APP_EXE_NAMS)
+run-EthTx       : $(NULL)         ; bin/run-env ./EthTx
+run-EthRx       : $(NULL)         ; bin/run-env ./EthRx
 clean           : $(CLEANS)       ; rm -rf $(TMP)
 
 .PHONY          : $(PHONYS)
