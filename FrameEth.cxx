@@ -130,6 +130,18 @@ namespace Frames
         bytes.insert(bytes.end(), this->spec[ETH_PAYLOAD].bytes.begin(), this->spec[ETH_PAYLOAD].bytes.end());
 
         give_frame(move(bytes));
+
+        this->spec[ETH_DMAC].valid        = false;
+        this->spec[ETH_SMAC].valid        = false;
+        this->spec[ETH_TYPE_ENCAP].valid  = false;
+        this->spec[ETH_TYPE_INSERT].valid = false;
+        this->spec[ETH_PAYLOAD].valid     = false;
+
+        this->spec[ETH_DMAC].bytes.clear();
+        this->spec[ETH_SMAC].bytes.clear();
+        this->spec[ETH_TYPE_ENCAP].bytes.clear();
+        this->spec[ETH_TYPE_INSERT].bytes.clear();
+        this->spec[ETH_PAYLOAD].bytes.clear();
     }
 
     string FrameEth::gist(void)

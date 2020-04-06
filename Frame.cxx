@@ -80,7 +80,10 @@ namespace Frames
             return false;
         }
 
-        cerr << "Frame::nic_open(): okay" << endl << flush;
+        if (false)
+        {
+            cerr << "Frame::nic_open(): okay" << endl << flush;
+        }
 
         return true;
     }
@@ -147,9 +150,12 @@ namespace Frames
                 len_min = hdr->len;
         }
 
-        cerr << "Frame::nic_rx_frame(): caplen is  " << hdr->caplen << endl << flush;
-        cerr << "Frame::nic_rx_frame(): len is     " << hdr->len << endl << flush;
-        cerr << "Frame::nic_rx_frame(): len_min is " << len_min << endl << flush;
+        if (false)
+        {
+            cerr << "Frame::nic_rx_frame(): caplen is  " << hdr->caplen << endl << flush;
+            cerr << "Frame::nic_rx_frame(): len is     " << hdr->len << endl << flush;
+            cerr << "Frame::nic_rx_frame(): len_min is " << len_min << endl << flush;
+        }
 
         for (uint32_t i = 0 ; i < len_min ; i++)
         {
@@ -173,7 +179,13 @@ namespace Frames
             return false;
         }
 
-        cerr << "Frame::nic_tx_frame(): okay" << endl << flush;
+        if (false)
+        {
+            cerr << "Frame::nic_tx_frame(): okay" << endl << flush;
+        }
+
+        this->frame.valid = false;
+        this->frame.bytes.clear();
 
         return true;
     }
@@ -205,6 +217,11 @@ namespace Frames
 
         arg_byte = (*this->iter_pos);
         return true;
+    }
+
+    string Frame::gist_bytes(void)
+    {
+        return this->gist_bytes(frame.bytes);
     }
 
     string Frame::gist_bytes(BVec &arg_bytes)

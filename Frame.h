@@ -61,6 +61,7 @@
                 bool nic_rx_frame(void);
                 bool nic_tx_frame(void);
                 bool get_frame_byte(uint8_t &arg_byte);
+                std::string gist_bytes();
                 std::string gist_bytes(BVec &arg_bytes);
                 std::string gist_item(item &arg_item);
                 virtual std::string gist(void);
