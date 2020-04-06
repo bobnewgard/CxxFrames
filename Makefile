@@ -58,7 +58,6 @@ LIB_TARG      := lib$(LIB_NAME).so
 $(shell if [ ! -d "$(LIB_OBJ_DIR)" ] ; then (set -x ; mkdir -p $(LIB_OBJ_DIR)) ; fi)
 
 define compile-for-obj
-    mkdir -p $(LIB_OBJ_DIR)
     g++ $(CXX_VER) -c $(DFLAGS) $(CFLAGS) -o $@ $<
 endef
 
