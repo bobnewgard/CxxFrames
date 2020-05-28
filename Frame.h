@@ -19,7 +19,7 @@
 
 #ifndef _FRAME_RAW_H_
     #define _FRAME_RAW_H_
-    
+
     #include <cstdint>
     #include <string>
     #include <vector>
@@ -55,6 +55,10 @@
                 void give_frame(BVec &&arg_bytes);
                 void copy_frame(BVec &arg_bytes);
                 void take_frame(BVec &arg_bytes);
+                static BVec & to_bvec(BVec & arg_bvec, const uint64_t arg_uint, const unsigned int arg_len = 8);
+                static BVec & to_bvec(BVec & arg_bvec, const uint32_t arg_uint, const unsigned int arg_len = 4);
+                static BVec & to_bvec(BVec & arg_bvec, const uint16_t arg_uint, const unsigned int arg_len = 2);
+                static BVec & to_bvec(BVec & arg_bvec, const uint8_t  arg_uint, const unsigned int arg_len = 1);
                 bool nic_open(std::string arg_nic_name);
                 void nic_close(void);
                 bool nic_rx_filter(std::string arg_expr);

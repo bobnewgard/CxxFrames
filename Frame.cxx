@@ -63,6 +63,52 @@ namespace Frames
         this->frame.bytes.clear();
     }
 
+    BVec & Frame::to_bvec(BVec & arg_bvec, const uint64_t arg_uint, const unsigned int arg_len)
+    {
+        for (unsigned int i = 0 ; i < 8 ; i++)
+        {
+            if ((8-i) > arg_len) continue;
+
+            switch (i)
+            {
+                case 0 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x38) & 0xff)); break;
+                case 1 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x30) & 0xff)); break;
+                case 2 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x28) & 0xff)); break;
+                case 3 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x20) & 0xff)); break;
+                case 4 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x18) & 0xff)); break;
+                case 5 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x10) & 0xff)); break;
+                case 6 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x08) & 0xff)); break;
+                case 7 : arg_bvec.push_back((uint8_t)((arg_uint >> 0x00) & 0xff)); break;
+            }
+        }
+
+        return arg_bvec;
+    }
+
+    BVec & Frame::to_bvec(BVec & arg_bvec, const uint32_t arg_uint, const unsigned int arg_len)
+    {
+        uint64_t     tmp_uint = (uint64_t) arg_uint;
+        unsigned int tmp_len  = (arg_len > 4) ? 4 : arg_len;
+
+        return to_bvec(arg_bvec, tmp_uint, tmp_len);
+    }
+
+    BVec & Frame::to_bvec(BVec & arg_bvec, const uint16_t arg_uint, const unsigned int arg_len)
+    {
+        uint64_t     tmp_uint = (uint64_t) arg_uint;
+        unsigned int tmp_len  = (arg_len > 2) ? 2 : arg_len;
+
+        return to_bvec(arg_bvec, tmp_uint, tmp_len);
+    }
+
+    BVec & Frame::to_bvec(BVec & arg_bvec, const uint8_t arg_uint, const unsigned int arg_len)
+    {
+        uint64_t     tmp_uint = (uint64_t) arg_uint;
+        unsigned int tmp_len  = (arg_len > 1) ? 1 : arg_len;
+
+        return to_bvec(arg_bvec, tmp_uint, tmp_len);
+    }
+
     bool Frame::nic_open(std::string arg_nic_name)
     {
         this->nic_errbuf[0] = '\0';
