@@ -30,6 +30,7 @@
     {
         typedef std::vector<uint8_t> BVec;
         typedef std::vector<uint8_t>::iterator BVecIter;
+        typedef std::vector<uint8_t>::const_iterator BVecConstIter;
         typedef struct bpf_program pcap_bpf;
 
         struct item
