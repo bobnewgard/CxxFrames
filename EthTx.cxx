@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 Robert Newgard
+ *  Copyright 2020-2021 Robert Newgard
  *
  *  This file is part of CxxFrames.
  *
