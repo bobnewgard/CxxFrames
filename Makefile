@@ -23,6 +23,12 @@ SHELL    := /bin/bash
 PHONYS   := $(NULL)
 CLEANS   := $(NULL)
 
+exe_ck   = $(if $(shell type -p $(1)),$(shell type -p $(1)),$(error Executable for "$(1)" not found))
+
+AR       := $(call exe_ck,ar)
+GXX      := $(call exe_ck,g++)
+RANLIB   := $(call exe_ck,ranlib)
+
 SP       := $(shell printf "\x20")
 TRUE     := true
 
@@ -53,24 +59,28 @@ LIB_OBJ_DIR   := $(TMP)/libobj
 LIB_CFG       := $(CFG)/Lib
 LIB_OBJ_NAMS  := $(shell ls $(LIB_CFG))
 LIB_REQS      := $(foreach OBJ,$(LIB_OBJ_NAMS),$(LIB_OBJ_DIR)/$(OBJ).o)
-LIB_TARG      := lib$(LIB_NAME).so
+LIB_A_TARG    := lib$(LIB_NAME).a
+LIB_S_TARG    := lib$(LIB_NAME).so
+LIB_TARG      := $(LIB_A_TARG) $(LIB_S_TARG)
 
 $(shell if [ ! -d "$(LIB_OBJ_DIR)" ] ; then (set -x ; mkdir -p $(LIB_OBJ_DIR)) ; fi)
 
 define compile-for-obj
-    g++ $(CXX_VER) -c $(DFLAGS) $(CFLAGS) -o $@ $<
+    $(GXX) $(CXX_VER) -c $(DFLAGS) $(CFLAGS) -o $@ $<
 endef
 
-define link-for-shared-obj
-    g++ -shared -Wl,-soname,$(LIB_TARG) -o $@ $^
+define link-for-static-lib
+    $(AR) r $(LIB_A_TARG) $^
+    $(RANLIB) $(LIB_A_TARG)
+endef
+
+define link-for-shared-lib
+    $(GXX) -shared -Wl,-soname,$(LIB_S_TARG) -o $(LIB_S_TARG) $^
 endef
 
 define lib-obj-targs
     $(LIB_OBJ_DIR)/$(1).o : $(1).cxx $(call get_list,$(LIB_CFG)/$(1)/ideps) ; $$(call compile-for-obj)
 endef
-
-$(if $(FALSE),$(info LIB_OBJ_NAMS: $(LIB_OBJ_NAMS)))
-$(if $(FALSE),$(info LIB_REQS: $(LIB_REQS)))
 
 $(foreach NAM,$(LIB_OBJ_NAMS),$(eval $(call lib-obj-targs,$(NAM))))
 
@@ -79,17 +89,15 @@ $(foreach NAM,$(LIB_OBJ_NAMS),$(eval $(call lib-obj-targs,$(NAM))))
 APP_CFG       := $(CFG)/App
 APP_EXE_NAMS  := $(shell ls $(APP_CFG))
 APP_EXE_LIBS  := -l$(LIB_NAME) -lpcap
-APP_EXE_REQS  := $(LIB_TARG)
+APP_EXE_REQS  := $(LIB_S_TARG)
 
 define compile-for-exe
-    g++ $(CXX_VER) $(DFLAGS) $(CFLAGS) -L . -o $@ $< $(APP_EXE_LIBS)
+    $(GXX) $(CXX_VER) $(DFLAGS) $(CFLAGS) -L . -o $@ $< $(APP_EXE_LIBS)
 endef
 
 define app-exe-targs
     $(1) : $(1).cxx $(call get_list,$(APP_CFG)/$(1)/ideps) $(APP_EXE_REQS) ; $$(call compile-for-exe)
 endef
-
-$(if $(FALSE),$(info APP_EXE_NAMS: $(APP_EXE_NAMS)))
 
 $(foreach NAM,$(APP_EXE_NAMS),$(eval $(call app-exe-targs,$(NAM))))
 
@@ -113,8 +121,8 @@ define top_hints_def
     @ $(hints_h1_def)
     @ $(hints_h2_def)
     @ $(call hints_def , show-cfg          , Show build config - aka 'sc'                     )
-    @ $(call hints_def , lib               , Create library $(LIB_TARG) from source           )
-    @ $(call hints_def , lib-clean         , Remove library $(LIB_TARG) and $(LIB_OBJ_DIR)/   )
+    @ $(call hints_def , lib               , Create library $(LIB_S_TARG) from source         )
+    @ $(call hints_def , lib-clean         , Remove library $(LIB_S_TARG) and $(LIB_OBJ_DIR)/ )
     @ $(call hints_def , apps              , Create executables $(APP_EXE_NAMS)               )
     @ $(call hints_def , apps-clean        , Remove executables                               )
     @ $(call hints_def , run-EthTx         , Run EthTx in local environment                   )
@@ -147,12 +155,14 @@ CLEANS += apps-clean
 
 # -- rules ---------------------------------------------------------------------
 nil             : $(NULL)         ; @true
+dbg-%           : $(NULL)         ; @echo '$* = "$(strip $($*))"'
 hints           : $(NULL)         ; $(top_hints_def)
 show-cfg        : $(NULL)         ; bin/cfg-show
 sc              : show-cfg        ; $(NULL)
-$(LIB_TARG)     : $(LIB_REQS)     ; $(link-for-shared-obj)
+$(LIB_A_TARG)   : $(LIB_REQS)     ; $(link-for-static-lib)
+$(LIB_S_TARG)   : $(LIB_REQS)     ; $(link-for-shared-lib)
 lib             : $(LIB_TARG)     ; $(NULL)
-lib-clean       : $(NULL)         ; rm -rf $(LIB_OBJ_DIR)/* $(LIB_TARG)
+lib-clean       : $(NULL)         ; rm -rf $(LIB_OBJ_DIR)/* $(LIB_A_TARG) $(LIB_S_TARG)
 apps            : $(APP_EXE_NAMS) ; $(NULL)
 apps-clean      : $(NULL)         ; rm -rf $(APP_EXE_NAMS)
 run-EthTx       : $(NULL)         ; bin/run-env ./EthTx
