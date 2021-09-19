@@ -111,53 +111,59 @@ namespace Frames
 
     bool Frame::nic_open(std::string arg_nic_name)
     {
-        this->nic_errbuf[0] = '\0';
-        this->nic_handle    = pcap_open_live(arg_nic_name.c_str(), 65536, 0, 100, this->nic_errbuf);
+        #ifndef PCAP_DISABLE
+            this->nic_errbuf[0] = '\0';
+            this->nic_handle    = pcap_open_live(arg_nic_name.c_str(), 65536, 0, 100, this->nic_errbuf);
 
-        if (this->nic_handle == NULL)
-        {
-            cerr << "Frame::nic_open(): failure opening device " << this->nic_errbuf << endl << flush;
-            return false;
-        }
+            if (this->nic_handle == NULL)
+            {
+                cerr << "Frame::nic_open(): failure opening device " << this->nic_errbuf << endl << flush;
+                return false;
+            }
 
-        if (strlen(this->nic_errbuf) != 0)
-        {
-            cerr << "Frame::nic_open(): warning opening device " << this->nic_errbuf << endl << flush;
-            return false;
-        }
+            if (strlen(this->nic_errbuf) != 0)
+            {
+                cerr << "Frame::nic_open(): warning opening device " << this->nic_errbuf << endl << flush;
+                return false;
+            }
 
-        if (false)
-        {
-            cerr << "Frame::nic_open(): okay" << endl << flush;
-        }
+            if (false)
+            {
+                cerr << "Frame::nic_open(): okay" << endl << flush;
+            }
+        #endif
 
         return true;
     }
 
     void Frame::nic_close(void)
     {
-        pcap_close(this->nic_handle);
+        #ifndef PCAP_DISABLE
+            pcap_close(this->nic_handle);
+        #endif
     }
 
     bool Frame::nic_rx_filter(string arg_expr)
     {
         int      ret;
 
-        ret = pcap_compile(this->nic_handle, &this->nic_bpf,arg_expr. c_str(), 0, PCAP_NETMASK_UNKNOWN);
+        #ifndef PCAP_DISABLE
+            ret = pcap_compile(this->nic_handle, &this->nic_bpf,arg_expr. c_str(), 0, PCAP_NETMASK_UNKNOWN);
 
-        if (ret < 0)
-        {
-            pcap_perror(this->nic_handle, "Frame::nic_rx_filter(): pcap_compile failure");
-            return false;
-        }
+            if (ret < 0)
+            {
+                pcap_perror(this->nic_handle, "Frame::nic_rx_filter(): pcap_compile failure");
+                return false;
+            }
 
-        ret = pcap_setfilter(this->nic_handle, &this->nic_bpf);
+            ret = pcap_setfilter(this->nic_handle, &this->nic_bpf);
 
-        if (ret < 0)
-        {
-            pcap_perror(this->nic_handle, "Frame::nic_rx_filter(): pcap_setfilter failure");
-            return false;
-        }
+            if (ret < 0)
+            {
+                pcap_perror(this->nic_handle, "Frame::nic_rx_filter(): pcap_setfilter failure");
+                return false;
+            }
+        #endif
 
         return true;
     }
@@ -169,46 +175,48 @@ namespace Frames
         int                 ret;
         uint32_t            len_min;
 
-        ret = pcap_next_ex(this->nic_handle, &hdr, &pkt);
+        #ifndef PCAP_DISABLE
+            ret = pcap_next_ex(this->nic_handle, &hdr, &pkt);
 
-        if (ret == 0)
-        {
-            cerr << "Frame::nic_rx_frame(): timeout" << endl << flush;
-            return false;
-        }
-        else if (ret == -1)
-        {
-            pcap_perror(this->nic_handle, "Frame::nic_rx_frame(): failure");
-            return false;
-        }
-        else if (ret == -2)
-        {
-            cerr << "Frame::nic_rx_frame(): savefile EOF" << endl << flush;
-            return false;
-        }
+            if (ret == 0)
+            {
+                cerr << "Frame::nic_rx_frame(): timeout" << endl << flush;
+                return false;
+            }
+            else if (ret == -1)
+            {
+                pcap_perror(this->nic_handle, "Frame::nic_rx_frame(): failure");
+                return false;
+            }
+            else if (ret == -2)
+            {
+                cerr << "Frame::nic_rx_frame(): savefile EOF" << endl << flush;
+                return false;
+            }
 
-        if (hdr->caplen < hdr->len)
-        {
-                len_min = hdr->caplen;
-        }
-        else
-        {
-                len_min = hdr->len;
-        }
+            if (hdr->caplen < hdr->len)
+            {
+                    len_min = hdr->caplen;
+            }
+            else
+            {
+                    len_min = hdr->len;
+            }
 
-        if (false)
-        {
-            cerr << "Frame::nic_rx_frame(): caplen is  " << hdr->caplen << endl << flush;
-            cerr << "Frame::nic_rx_frame(): len is     " << hdr->len << endl << flush;
-            cerr << "Frame::nic_rx_frame(): len_min is " << len_min << endl << flush;
-        }
+            if (false)
+            {
+                cerr << "Frame::nic_rx_frame(): caplen is  " << hdr->caplen << endl << flush;
+                cerr << "Frame::nic_rx_frame(): len is     " << hdr->len << endl << flush;
+                cerr << "Frame::nic_rx_frame(): len_min is " << len_min << endl << flush;
+            }
 
-        for (uint32_t i = 0 ; i < len_min ; i++)
-        {
-            this->frame.bytes.push_back(pkt[i]);
-        }
+            for (uint32_t i = 0 ; i < len_min ; i++)
+            {
+                this->frame.bytes.push_back(pkt[i]);
+            }
 
-        this->frame.valid = true;
+            this->frame.valid = true;
+        #endif
 
         return true;
     }
@@ -217,21 +225,23 @@ namespace Frames
     {
         int ret;
 
-        ret = pcap_inject(this->nic_handle, frame.bytes.data(), frame.bytes.size());
+        #ifndef PCAP_DISABLE
+            ret = pcap_inject(this->nic_handle, frame.bytes.data(), frame.bytes.size());
 
-        if (ret < 0)
-        {
-            pcap_perror(this->nic_handle, "Frame::nic_tx_frame(): failure");
-            return false;
-        }
+            if (ret < 0)
+            {
+                pcap_perror(this->nic_handle, "Frame::nic_tx_frame(): failure");
+                return false;
+            }
 
-        if (false)
-        {
-            cerr << "Frame::nic_tx_frame(): okay" << endl << flush;
-        }
+            if (false)
+            {
+                cerr << "Frame::nic_tx_frame(): okay" << endl << flush;
+            }
 
-        this->frame.valid = false;
-        this->frame.bytes.clear();
+            this->frame.valid = false;
+            this->frame.bytes.clear();
+        #endif
 
         return true;
     }
